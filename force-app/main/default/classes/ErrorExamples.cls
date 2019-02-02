@@ -2,6 +2,8 @@
  * @author Rehket, aalbright@iamrehket.me, 01 February 2019
  * @description This class has functions demonstrating common scenarios where errors might occur 
  * and how to handle them.
+ * 
+ * Business Requirement: We need a form for a user to check that a username is available.
  */
 
 public with sharing class ErrorExamples {
@@ -51,7 +53,7 @@ public with sharing class ErrorExamples {
      * @param String desired_username The username a user wants to check. 
      */
     static Boolean isMyUsernameAvailable(String desired_username){
-        if(desired_username.isNotBlank() && isEmail(desired_username)){
+        if(String.isNotBlank(desired_username) && isEmail(desired_username)){
             List<User> duplicate_users = [SELECT Id FROM User WHERE UserName=:desired_username];
             if(duplicate_users.isEmpty())
                 return true;
@@ -70,6 +72,59 @@ public with sharing class ErrorExamples {
 
 
 
+    /*******************************************************************************************************
+     * @description A slightly bigger version of the isMyUserNameAvailable function, in terms of error handling.
+     * @param String desired_username The username a user wants to check. 
+     */
+    static Boolean isAUsernameAvailable(String desired_username){
+        try {
+            if(String.isNotBlank(desired_username) && isEmail(desired_username)){
+                List<User> duplicate_users = [SELECT Id FROM User WHERE UserName=:desired_username];
+                if(duplicate_users.isEmpty())
+                    return true;
+                return false;
+            }
+            throw new UserNameException('Desired Username cannot be blank and should be in the form of text@somedomain.com');
+        } catch (UserNameException e){
+            return false;
+        }
+    }
+    /* Possible Problems:
+        So now if the user puts in something incorrect... the function will return false, that name is not available.
+        It supports the business requirement.
+
+        But what if we want to tell the user they are entering something invalid, rather than just 
+        letting them plug away until they enter an email that is not already in use....
+    */
+
+
+
+
+
+    /*******************************************************************************************************
+     * @description In the check_username method, we are going to use the isUsernameAvailable method 
+     * we made before and combine it with pieces of the other methods to make something that is a bit
+     * easier to understand and use. 
+     * @param 
+     */
+    
+    static Boolean checkUsername(String desired_username){
+        if(String.isNotBlank(desired_username) && isEmail(desired_username))
+            return isUsernameAvailable(desired_username);
+        throw new UserNameException('Desired Username cannot be blank and should be in the form of text@somedomain.com');    
+    }
+
+    @AuraEnabled
+    public static Boolean auraCheckUsername(String desired_username){
+        try {
+            return checkUsername(desired_username);
+        } catch (UserNameException e) {
+            throw new AuraHandledException('Desired Username cannot be blank and should be in the form of text@somedomain.com');
+        } catch (Exception e){
+            throw new AuraHandledException('Something unexpected happened... Please make a ticket with IT for more assistance.');
+        }
+      
+    }
 
     // Dealing With DML Exceptions
 
