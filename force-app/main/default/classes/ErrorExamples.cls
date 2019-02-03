@@ -126,6 +126,16 @@ public with sharing class ErrorExamples {
       
     }
 
+    /*
+        So at this point, you have mave realized that despite us building this function to be used to take a users input, 
+        we did not add an AuraEnabled decorator. That's beacuse is because seperating out the functionality and logic 
+        from the aura enabled function lets us focus on handling the error in the aure function.
+
+        If we get an exception we recognise, such as the UserNameException, we can ask the user to fix it. 
+        If we get something we are not expecting, we ask the user to get assistance to IT. 
+    
+    */
+
     // Dealing With DML Exceptions
 
     // Incomplete Transactions when using try catch statements
