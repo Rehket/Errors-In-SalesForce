@@ -15,8 +15,7 @@ public with sharing class ErrorExamples {
      */
     static Boolean isUsernameAvailable(String desired_username){
         // A username in SalesForce is a string formated as an email. Ex: text@text.com
-        // So what can go wrong here?
-        
+        // ''
         List<User> duplicate_users = [SELECT Id FROM User WHERE UserName=:desired_username];
         if(duplicate_users.isEmpty())
             return true;
@@ -26,13 +25,12 @@ public with sharing class ErrorExamples {
         We can have a user input a username that is not valid. It will always return true. 
         A user could pass an empty string. This would also always return true. 
 
-        In cases like these, what we want to do is tell the user that something is wrong and how they can fix it.
+        In cases like these, what we want to do is tell the user that something is wrong and 
+        how they can fix it.
         In SalesForce, this is done with exceptions. 
     */
 
 
-    // This is an exception we will use when the user can resolve the issue.
-    class UserNameException extends Exception {}
 
     /*******************************************************************************************************
      * @description Returns true if the string has an @ symbol. Not really a good email check.
@@ -47,9 +45,13 @@ public with sharing class ErrorExamples {
         return true;
     }
 
+    // This is an exception we will use when the user can resolve the issue.
+    class UserNameException extends Exception {}
+
 
     /*******************************************************************************************************
-     * @description A slightly better version of the isUserNameAvailable function, in terms of error handling.
+     * @description A slightly better version of the isUserNameAvailable function, in terms
+     * of error handling.
      * @param String desired_username The username a user wants to check. 
      */
     static Boolean isMyUsernameAvailable(String desired_username){
@@ -59,7 +61,8 @@ public with sharing class ErrorExamples {
                 return true;
             return false;
         }
-        throw new UserNameException('Desired Username cannot be blank and should be in the form of text@somedomain.com'); 
+        throw new UserNameException('Desired Username cannot be blank and should be in the ' + 
+        'form of text@somedomain.com'); 
     }
 
     /* Possible Problems:
@@ -73,7 +76,8 @@ public with sharing class ErrorExamples {
 
 
     /*******************************************************************************************************
-     * @description A slightly bigger version of the isMyUserNameAvailable function, in terms of error handling.
+     * @description A slightly bigger version of the isMyUserNameAvailable function, in terms
+     * of error handling.
      * @param String desired_username The username a user wants to check. 
      */
     static Boolean isAUsernameAvailable(String desired_username){
@@ -84,13 +88,15 @@ public with sharing class ErrorExamples {
                     return true;
                 return false;
             }
-            throw new UserNameException('Desired Username cannot be blank and should be in the form of text@somedomain.com');
+            throw new UserNameException('Desired Username cannot be blank and should be in the '+ '
+            form of text@somedomain.com');
         } catch (UserNameException e){
             return false;
         }
     }
     /* Possible Problems:
-        So now if the user puts in something incorrect... the function will return false, that name is not available.
+        So now if the user puts in something incorrect... the function will return false, 
+        that name is not available.
         It supports the business requirement.
 
         But what if we want to tell the user they are entering something invalid, rather than just 
@@ -111,7 +117,8 @@ public with sharing class ErrorExamples {
     static Boolean checkUsername(String desired_username){
         if(String.isNotBlank(desired_username) && isEmail(desired_username))
             return isUsernameAvailable(desired_username);
-        throw new UserNameException('Desired Username cannot be blank and should be in the form of text@somedomain.com');    
+        throw new UserNameException('Desired Username cannot be blank and should be ' + '
+        in the form of text@somedomain.com');    
     }
 
     @AuraEnabled
@@ -119,22 +126,30 @@ public with sharing class ErrorExamples {
         try {
             return checkUsername(desired_username);
         } catch (UserNameException e) {
-            throw new AuraHandledException('Desired Username cannot be blank and should be in the form of text@somedomain.com');
+            throw new AuraHandledException(e.getMessage());
         } catch (Exception e){
-            throw new AuraHandledException('Something unexpected happened... Please make a ticket with IT for more assistance.');
+            throw new AuraHandledException('Something unexpected happened... Please make a ticket ' + '
+            with IT for more assistance.');
         }
       
     }
 
     /*
-        So at this point, you have mave realized that despite us building this function to be used to take a users input, 
-        we did not add an AuraEnabled decorator. That's beacuse is because seperating out the functionality and logic 
-        from the aura enabled function lets us focus on handling the error in the aure function.
-
-        If we get an exception we recognise, such as the UserNameException, we can ask the user to fix it. 
-        If we get something we are not expecting, we ask the user to get assistance to IT. 
-    
+        Be splitting the logic and error handling, we have code that is more modular 
+        and easier to follow and test. 
     */
+
+
+    /* 
+        So now we have gone over recognising area where errors might occur 
+        as well as a way to mitigate them.
+
+        You can email me at aalbright-at-iamrehket.me or on twitter @iamrehket
+    */
+
+
+
+
 
     // Dealing With DML Exceptions
 
