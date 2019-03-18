@@ -1,4 +1,5 @@
 # SFDC Error Handling
+[![Maintainability](https://api.codeclimate.com/v1/badges/b53ee41a92fe563ad2e9/maintainability)](https://codeclimate.com/github/Rehket/Errors-In-SalesForce/maintainability)
 ## This repo contains examples on how to implement error handling in SalesForce.
 ### Part 1 - Some Basics of Error Handling(v1: Complete)
 - What are errors in SalesForce? 
